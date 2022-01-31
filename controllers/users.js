@@ -31,7 +31,8 @@ router.post('/signup', async (req, res) => {
                 username: req.body.username,
                 email: req.body.email,
                 password: req.body.password,
-                profilePic: req.body.profilePic
+                profilePic: req.body.profilePic,
+                about: req.body.about
             });
 
             // Salt and hash the password - before saving the user
@@ -97,6 +98,50 @@ router.post('/login', async (req, res) => {
         return res.status(400).json({ message: 'User not found' });
     }
 });
+
+
+router.post('/collection', passport.authenticate('jwt', { session: false }), (req, res) => {
+    User.findById(req.user.id)
+        .then(user => {
+            user.collections.push(
+                {
+                    title: req.body.title,
+                    category: req.body.category,
+                    about: req.body.about,
+                    photoUrl: req.body.photoUrl,
+                    items: [],
+
+                }
+            )
+            user.save(function (err) {
+                if (!err) console.log('Success!');
+                else {
+                    console.log(err);
+                }
+            });
+        })
+});
+
+
+router.get('/info', async (req, res) => {
+    User.find()
+        .then(users => {
+            const returnedUser = Object.assign(users, {});
+            for (let i = 0; i < returnedUser.length; i++) {
+                returnedUser.map(() => {
+                    returnedUser[i].password = null;
+                })
+            }
+            res.json({ user: returnedUser });
+        })
+});
+
+router.get('/delete', (req, res)=> {
+    User.findOneAndRemove({ username: 'test1' }, function(err) {
+        if (err) console.log(err);
+        console.log('Users deleted!');
+      });
+})
 
 router.get('/profile', passport.authenticate('jwt', { session: false }), (req, res) => {
     console.log('====> inside /profile');

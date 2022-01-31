@@ -65,6 +65,10 @@ const userSchema = new Schema({
         type: String,
         required: true
     },
+    about: {
+        type: String,
+        required: true
+    },
     collections: [collectionSchema]
 });
 
